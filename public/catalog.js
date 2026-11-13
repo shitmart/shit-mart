@@ -130,7 +130,7 @@
     }
 
     grid.innerHTML = items.map(p => `
-      <article class="sm-product-card">
+      <article class="sm-product-card" data-product-id="${escapeHTML(p.id)}" role="button" tabindex="0" aria-label="View details for ${escapeHTML(p.name)}">
         ${p.image_url && /^https:\/\//i.test(p.image_url)
           ? `<img class="sm-product-image" src="${escapeHTML(p.image_url)}" alt="${escapeHTML(p.name)}" loading="lazy">`
           : `<div class="sm-product-placeholder">${current.icon}</div>`}
@@ -140,6 +140,77 @@
         <span class="sm-available">Available</span>
       </article>
     `).join("");
+    
+    // Make product cards open a product-details popup.
+    const detailsStyle = document.createElement("style");
+    detailsStyle.textContent = `
+      .sm-product-card[role="button"]{cursor:pointer;transition:transform .18s ease,border-color .18s ease}
+      .sm-product-card[role="button"]:hover{transform:translateY(-3px);border-color:#6585b8}
+      .sm-product-card[role="button"]:focus-visible{outline:2px solid #8ab4ff;outline-offset:3px}
+      .sm-product-details-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.78)}
+      .sm-product-details-box{position:relative;width:min(100%,430px);max-height:85vh;overflow:auto;background:#101a2a;color:#f3f7ff;border:1px solid #30425e;border-radius:18px;padding:22px;box-shadow:0 20px 70px #0009}
+      .sm-product-details-box img{display:block;width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-bottom:16px}
+      .sm-product-details-box h2{font-size:21px;margin:8px 0 12px;overflow-wrap:anywhere}
+      .sm-product-details-box p{font-size:14px;line-height:1.7;color:#c4d0e0;overflow-wrap:anywhere}
+      .sm-product-details-price{font-size:23px;font-weight:800;color:#8df0bd;margin:16px 0}
+      .sm-product-details-close{position:sticky;top:0;float:right;border:0;border-radius:10px;background:#26364d;color:white;padding:9px 13px;font-size:16px;cursor:pointer}
+      .sm-product-details-status{display:inline-block;padding:6px 10px;border-radius:20px;background:#153c30;color:#9af0c5;font-size:12px}
+    `;
+    document.head.appendChild(detailsStyle);
+
+    function closeProductDetails() {
+      document.getElementById("sm-product-details-modal")?.remove();
+      document.removeEventListener("keydown", closeProductDetailsOnEscape);
+    }
+    function closeProductDetailsOnEscape(event) {
+      if (event.key === "Escape") closeProductDetails();
+    }
+    function openProductDetails(product) {
+      closeProductDetails();
+      const modal = document.createElement("div");
+      modal.id = "sm-product-details-modal";
+      modal.className = "sm-product-details-modal";
+      modal.setAttribute("role", "dialog");
+      modal.setAttribute("aria-modal", "true");
+      modal.setAttribute("aria-label", "Product details");
+
+      const image = product.image_url && /^https:\/\//i.test(product.image_url)
+        ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}">`
+        : "";
+      const description = product.description
+        ? `<p>${escapeHTML(product.description).replace(/\n/g, "<br>")}</p>`
+        : `<p>No additional description provided.</p>`;
+
+      modal.innerHTML = `
+        <div class="sm-product-details-box">
+          <button type="button" class="sm-product-details-close" aria-label="Close product details">✕ Close</button>
+          ${image}
+          <h2>${escapeHTML(product.name)}</h2>
+          ${description}
+          <div class="sm-product-details-price">${money(product.price)}</div>
+          <span class="sm-product-details-status">Available</span>
+        </div>`;
+      modal.addEventListener("click", event => {
+        if (event.target === modal || event.target.closest(".sm-product-details-close")) {
+          closeProductDetails();
+        }
+      });
+      document.body.appendChild(modal);
+      document.addEventListener("keydown", closeProductDetailsOnEscape);
+      modal.querySelector(".sm-product-details-close").focus();
+    }
+
+    function handleProductCard(event) {
+      const card = event.target.closest(".sm-product-card[data-product-id]");
+      if (!card || !grid.contains(card)) return;
+      if (event.type === "keydown" && !["Enter", " "].includes(event.key)) return;
+      if (event.type === "keydown") event.preventDefault();
+      const product = items.find(item => String(item.id) === card.dataset.productId);
+      if (product) openProductDetails(product);
+    }
+    grid.addEventListener("click", handleProductCard);
+    grid.addEventListener("keydown", handleProductCard);
+
     message.textContent = `${items.length} product${items.length === 1 ? "" : "s"} available`;
   } catch (error) {
     console.error("SHIT MART catalog:", error);
