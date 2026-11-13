@@ -102,6 +102,19 @@ export async function onRequest({ request, env }) {
   if (method === "GET" && path === "/api/admin/me")
     return json({ ok: true }, 200, { "Cache-Control": "no-store" });
 
+  if (path === "/api/admin/site-content" && method === "GET") {
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS site_content (content_key TEXT PRIMARY KEY, content_value TEXT NOT NULL DEFAULT '')").run();
+    const {results} = await env.DB.prepare("SELECT content_key,content_value FROM site_content").all();
+    return json(Object.fromEntries(results.map(r=>[r.content_key,r.content_value])),200,{"Cache-Control":"no-store"});
+  }
+  if (path === "/api/admin/site-content" && method === "PUT") {
+    let d; try { d=await request.json(); } catch { return json({error:"Invalid JSON"},400); }
+    if(typeof d.key!=="string"||d.key.length>1200||typeof d.value!=="string"||d.value.length>5000) return json({error:"Invalid text"},400);
+    await env.DB.prepare("CREATE TABLE IF NOT EXISTS site_content (content_key TEXT PRIMARY KEY, content_value TEXT NOT NULL DEFAULT '')").run();
+    await env.DB.prepare("INSERT INTO site_content(content_key,content_value) VALUES(?,?) ON CONFLICT(content_key) DO UPDATE SET content_value=excluded.content_value").bind(d.key,d.value).run();
+    return json({ok:true});
+  }
+
   if (method === "GET" && path === "/api/admin/products") {
     const { results } = await env.DB.prepare(
       "SELECT * FROM products ORDER BY id DESC"

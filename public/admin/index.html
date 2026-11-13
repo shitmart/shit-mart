@@ -24,6 +24,12 @@ label{display:block;color:#b9c8df}h2{margin-top:0}
 <h2>Admin login</h2><form id="loginForm"><label>Private admin password<input id="password" type="password" required autocomplete="current-password"></label><button>Log in</button></form>
 </section>
 <section id="dashboard" class="hidden">
+<div id="siteEditorPanel" style="margin:18px 0;padding:16px;border:1px solid #7c3aed;border-radius:14px;background:#faf5ff;color:#171717">
+<h2>Website Text Editor</h2><p>Click any text in the preview, edit it below, then save. Use the preview's navigation to open category pages.</p>
+<iframe id="siteEditorFrame" title="Website preview" src="/?site_editor=1" style="width:100%;height:480px;background:white;border:1px solid #ddd;border-radius:8px"></iframe>
+<label for="siteEditorText">Selected text</label><textarea id="siteEditorText" rows="3" style="width:100%;box-sizing:border-box;padding:10px" placeholder="Click text in the preview"></textarea>
+<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button type="button" id="siteEditorSave" disabled>Save text</button><button type="button" id="siteEditorRefresh">Refresh preview</button></div><p id="siteEditorStatus" role="status"></p></div>
+
 <div class="panel"><button id="newBtn">＋ New product</button><button id="refreshBtn" class="secondary">Refresh products</button><button id="logoutBtn" class="secondary">Log out</button><p id="status" class="status"></p><h2>Products <span id="count"></span></h2><div id="products" class="grid"></div></div>
 <div id="editor" class="panel hidden"><h2 id="editorTitle">Add product</h2>
 <form id="productForm">
@@ -85,4 +91,15 @@ $('productForm').onsubmit=async e=>{
 async function removeProduct(id){if(!confirm('Permanently delete this product?'))return;try{await api('/products/'+id,{method:'DELETE'});await load()}catch(e){alert(e.message)}}
 check();
 </script>
+
+<script>
+(()=>{let k="";const $=id=>document.getElementById(id),f=$("siteEditorFrame"),t=$("siteEditorText"),b=$("siteEditorSave"),s=$("siteEditorStatus");
+addEventListener("message",e=>{if(e.origin!==location.origin||e.data?.type!=="shitmart-text-selected")return;k=e.data.key;t.value=e.data.value;b.disabled=false;s.textContent="Text selected. Edit and save.";});
+b.onclick=async()=>{if(!k)return;b.disabled=true;s.textContent="Saving...";
+try{let r=await fetch("/api/admin/site-content",{method:"PUT",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:k,value:t.value})});if(!r.ok)throw Error("Save failed ("+r.status+"). Check admin login.");s.textContent="Saved! Refreshing preview.";f.contentWindow.location.reload();}
+catch(e){s.textContent=e.message;}finally{b.disabled=false;}};
+$("siteEditorRefresh").onclick=()=>{f.src="/?site_editor=1&t="+Date.now();};
+})();
+</script>
+
 </body></html>
