@@ -81,7 +81,7 @@
       link.className = "home-product-result";
       const productCategory = ["subscriptions","topups","giftcards","software","accounts","other"].includes(String(p.category || "other").toLowerCase()) ? String(p.category || "other").toLowerCase() : "other";
       const productSlug = String(p.name || "product").normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "product";
-      link.href = "/" + productCategory + "/" + productSlug;
+      link.href = ("/" + (categoryNames[String(p.category || "other").toLowerCase()] ? String(p.category || "other").toLowerCase() : "other") + "/" + (String(p.name || "product").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "product"));
 
       const name = document.createElement("strong");
       name.textContent = p.name || "Untitled product";
