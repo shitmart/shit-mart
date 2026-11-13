@@ -10,147 +10,160 @@
 
   const style = document.createElement("style");
   style.textContent = `
-    #sm-store-products{margin-top:34px}
-    .sm-category-products{margin:32px 0;scroll-margin-top:100px}
-    .sm-category-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
-    .sm-category-heading h2{margin:0;font-size:clamp(20px,4vw,28px)}
-    .sm-product-count{font-size:12px;color:#9eabc0}
-    .sm-product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:15px}
-    .sm-product-card{border:1px solid var(--line,#29364b);border-radius:15px;padding:13px;background:linear-gradient(145deg,#121b2a,#0c111b);color:#f4f7ff;overflow-wrap:anywhere}
-    .sm-product-image{width:100%;height:155px;object-fit:contain;border-radius:10px}
+    #sm-store-products{max-width:1200px;margin:30px auto;padding:0 20px;color:inherit}
+    .sm-product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:16px}
+    .sm-product-card{border:1px solid var(--line,#29364b);border-radius:15px;padding:14px;background:linear-gradient(145deg,#121b2a,#0c111b);color:#f4f7ff;overflow-wrap:anywhere}
+    .sm-product-image{width:100%;height:170px;object-fit:contain;border-radius:10px}
     .sm-product-card h3{font-size:16px;margin:12px 0 7px}
     .sm-product-description{font-size:13px;line-height:1.6;color:#aab6cc;white-space:pre-wrap}
     .sm-product-price{font-size:19px;font-weight:800;margin-top:12px;color:#78bdff}
-    .sm-category-button{cursor:pointer}
-    .sm-no-products{color:#aab6cc;padding:12px 0}
+    .sm-back{display:inline-block;margin:0 0 20px;color:#78bdff;text-decoration:none}
+    .sm-page-title{font-size:clamp(25px,5vw,36px);margin:5px 0 22px}
+    .sm-message{color:#aab6cc;padding:18px 0}
   `;
   document.head.appendChild(style);
 
-  const categoryGrid = document.getElementById("categoryGrid");
-  if (!categoryGrid) return;
+  const root = document.getElementById("sm-store-products") ||
+    document.createElement("section");
+  root.id = "sm-store-products";
 
-  let root = document.getElementById("sm-store-products");
-  if (!root) {
-    root = document.createElement("div");
-    root.id = "sm-store-products";
-    categoryGrid.insertAdjacentElement("afterend", root);
+  const categorySection = document.getElementById("categories");
+  if (categorySection && !root.isConnected) {
+    categorySection.insertAdjacentElement("afterend", root);
+  } else if (!root.isConnected) {
+    document.querySelector("main")?.appendChild(root);
   }
 
-  const escapeText = value => String(value ?? "");
+  const getCategory = () => {
+    const slug = location.pathname.replace(/^\/+|\/+$/g, "").toLowerCase();
+    return categories.find(c => c.id === slug) || null;
+  };
 
-  function makeCard(product) {
-    const card = document.createElement("article");
-    card.className = "sm-product-card";
-
-    if (product.image_url) {
-      const image = document.createElement("img");
-      image.className = "sm-product-image";
-      image.src = product.image_url;
-      image.alt = escapeText(product.name);
-      image.loading = "lazy";
-      image.onerror = () => image.remove();
-      card.appendChild(image);
+  function card(p) {
+    const el = document.createElement("article");
+    el.className = "sm-product-card";
+    if (p.image_url) {
+      const img = document.createElement("img");
+      img.className = "sm-product-image";
+      img.src = p.image_url;
+      img.alt = p.name;
+      img.loading = "lazy";
+      img.onerror = () => img.remove();
+      el.appendChild(img);
     }
-
-    const name = document.createElement("h3");
-    name.textContent = product.name;
-
-    const description = document.createElement("p");
-    description.className = "sm-product-description";
-    description.textContent = product.description || "";
-
+    const title = document.createElement("h3");
+    title.textContent = p.name;
+    const desc = document.createElement("p");
+    desc.className = "sm-product-description";
+    desc.textContent = p.description || "";
     const price = document.createElement("div");
     price.className = "sm-product-price";
-    price.textContent = "NPR " + Number(product.price).toLocaleString("en-NP");
-
-    card.append(name, description, price);
-    return card;
+    price.textContent = "NPR " + Number(p.price).toLocaleString("en-NP");
+    el.append(title, desc, price);
+    return el;
   }
 
-  function showCategory(id) {
-    const section = document.getElementById("sm-cat-" + id);
-    if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+  function navigate(path) {
+    if (location.pathname !== path) history.pushState({}, "", path);
+    renderRoute();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  try {
-    const response = await fetch("/api/products", { cache: "no-store" });
-    if (!response.ok) throw new Error("Product API: " + response.status);
+  async function renderRoute() {
+    const current = getCategory();
+    const home = !current && (
+      location.pathname === "/" ||
+      location.pathname.endsWith("/index.html")
+    );
 
-    const data = await response.json();
-    const products = data.products || [];
-
+    if (categorySection) categorySection.hidden = !home;
     root.replaceChildren();
+    root.hidden = home;
 
-    categories.forEach(category => {
-      const categoryProducts = products.filter(
-        product => (product.category || "other").toLowerCase() === category.id
+    if (home) return;
+
+    if (!current) {
+      root.hidden = false;
+      const h = document.createElement("h1");
+      h.className = "sm-page-title";
+      h.textContent = "Page not found";
+      root.appendChild(h);
+      const back = document.createElement("a");
+      back.className = "sm-back";
+      back.href = "/";
+      back.textContent = "← Back to home";
+      back.onclick = e => { e.preventDefault(); navigate("/"); };
+      root.appendChild(back);
+      return;
+    }
+
+    const back = document.createElement("a");
+    back.className = "sm-back";
+    back.href = "/";
+    back.textContent = "← All categories";
+    back.onclick = e => { e.preventDefault(); navigate("/"); };
+    root.appendChild(back);
+
+    const title = document.createElement("h1");
+    title.className = "sm-page-title";
+    title.textContent = current.icon + " " + current.name;
+    root.appendChild(title);
+
+    const loading = document.createElement("p");
+    loading.className = "sm-message";
+    loading.textContent = "Loading products…";
+    root.appendChild(loading);
+
+    try {
+      const response = await fetch("/api/products", { cache: "no-store" });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const data = await response.json();
+      if (getCategory()?.id !== current.id) return;
+
+      const products = (data.products || []).filter(
+        p => (p.category || "other").toLowerCase() === current.id
       );
 
-      const button = categoryGrid.querySelector(
-        '.category[data-name="' + category.name + '"]'
-      );
+      root.replaceChildren(back, title);
 
-      if (button) {
-        button.classList.add("sm-category-button");
-
-        const small = button.querySelector("small");
-        if (small) {
-          small.textContent = categoryProducts.length
-            ? categoryProducts.length + " product" +
-              (categoryProducts.length === 1 ? "" : "s") + " available."
-            : "New digital products coming soon.";
-        }
-
-        button.onclick = () => showCategory(category.id);
+      if (!products.length) {
+        const msg = document.createElement("p");
+        msg.className = "sm-message";
+        msg.textContent = "No products in this category yet. Check back soon!";
+        root.appendChild(msg);
+        return;
       }
 
-      const section = document.createElement("section");
-      section.className = "sm-category-products";
-      section.id = "sm-cat-" + category.id;
-
-      const heading = document.createElement("div");
-      heading.className = "sm-category-heading";
-
-      const title = document.createElement("h2");
-      title.textContent = category.icon + " " + category.name;
-
-      const count = document.createElement("span");
-      count.className = "sm-product-count";
-      count.textContent = categoryProducts.length + " products";
-
-      heading.append(title, count);
-      section.appendChild(heading);
-
-      if (!categoryProducts.length) {
-        const empty = document.createElement("p");
-        empty.className = "sm-no-products";
-        empty.textContent = "No products in this category yet.";
-        section.appendChild(empty);
-      } else {
-        const grid = document.createElement("div");
-        grid.className = "sm-product-grid";
-        categoryProducts.forEach(product => grid.appendChild(makeCard(product)));
-        section.appendChild(grid);
-      }
-
-      root.appendChild(section);
-    });
-
-    document.querySelectorAll("[data-filter]").forEach(link => {
-      link.addEventListener("click", () => {
-        const filter = link.dataset.filter;
-        const category = categories.find(item => item.name === filter);
-        if (category) setTimeout(() => showCategory(category.id), 50);
-      });
-    });
-
-    console.log("SHIT MART catalog loaded:", products.length, "products");
-  } catch (error) {
-    root.replaceChildren();
-    const message = document.createElement("p");
-    message.className = "sm-no-products";
-    message.textContent = "Products could not load. Please refresh later.";
-    root.appendChild(message);
-    console.error("SHIT MART catalog error:", error);
+      const grid = document.createElement("div");
+      grid.className = "sm-product-grid";
+      products.forEach(p => grid.appendChild(card(p)));
+      root.appendChild(grid);
+    } catch (e) {
+      loading.textContent = "Couldn't load products. Please refresh the page.";
+      console.error("SHIT MART products:", e);
+    }
   }
+
+  // Category cards navigate to their own URLs.
+  categories.forEach(c => {
+    const button = document.querySelector(
+      '#categoryGrid .category[data-name="' + c.name + '"]'
+    );
+    if (button) {
+      button.onclick = () => navigate("/" + c.id);
+      button.style.cursor = "pointer";
+    }
+  });
+
+  // Header category links navigate instead of filtering the homepage.
+  document.querySelectorAll("[data-filter]").forEach(link => {
+    const c = categories.find(x => x.name === link.dataset.filter);
+    if (c) link.addEventListener("click", e => {
+      e.preventDefault();
+      navigate("/" + c.id);
+    });
+  });
+
+  window.addEventListener("popstate", renderRoute);
+  await renderRoute();
 })();
