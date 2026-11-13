@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>SHIT MART | Admin</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b12;color:#edf3ff;font:15px system-ui,sans-serif}
+main{max-width:1050px;margin:auto;padding:22px}h1{margin:0 0 8px}p{color:#aab6cc}
+.panel{background:#111827;border:1px solid #26334b;border-radius:16px;padding:18px;margin:16px 0}
+input,textarea,select{width:100%;padding:12px;margin:6px 0 12px;background:#080d18;color:white;border:1px solid #33415a;border-radius:9px}
+button{padding:11px 15px;border:0;border-radius:9px;background:#2677ff;color:white;font-weight:700;margin:4px;cursor:pointer}
+button.danger{background:#a82e43}button.secondary{background:#27344b}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.item{border:1px solid #2b3850;border-radius:12px;padding:12px;overflow-wrap:anywhere}
+small{color:#aab6cc}.hidden{display:none}.status{white-space:pre-wrap;color:#7fb4ff}
+label{display:block;color:#b9c8df}h2{margin-top:0}
+</style>
+</head>
+<body><main>
+<h1>SHIT MART Admin</h1><p>Manage your product catalog · Prices in NPR</p>
+<section id="login" class="panel">
+<h2>Admin login</h2><form id="loginForm"><label>Private admin password<input id="password" type="password" required autocomplete="current-password"></label><button>Log in</button></form>
+</section>
+<section id="dashboard" class="hidden">
+<div class="panel"><button id="newBtn">＋ New product</button><button id="refreshBtn" class="secondary">Refresh products</button><button id="logoutBtn" class="secondary">Log out</button><p id="status" class="status"></p><h2>Products <span id="count"></span></h2><div id="products" class="grid"></div></div>
+<div id="editor" class="panel hidden"><h2 id="editorTitle">Add product</h2>
+<form id="productForm">
+<input id="pid" type="hidden">
+<label>Product name<input id="name" maxlength="120" required></label>
+<label>Price (NPR)<input id="price" type="number" min="0" step="0.01" required></label>
+<label>Category<select id="category"><option>subscriptions</option><option>topups</option><option>giftcards</option><option>software</option><option>accounts</option><option>other</option></select></label>
+<label>Description<textarea id="description" rows="3" maxlength="2000"></textarea></label>
+<label>Image URL (HTTPS)<input id="image_url" type="url" placeholder="https://..."></label>
+<label><input id="featured" type="checkbox" style="width:auto"> Featured product</label>
+<label><input id="active" type="checkbox" checked style="width:auto"> Visible in store</label>
+<button id="saveBtn">Save product</button><button type="button" id="cancelBtn" class="secondary">Cancel</button>
+</form></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+async function api(path,opts={}) {
+ const r=await fetch('/api/admin'+path,{...opts,headers:{'Content-Type':'application/json',...(opts.headers||{})}});
+ let d={};try{d=await r.json()}catch{}
+ if(!r.ok)throw Error(d.error||'Request failed');
+ return d;
+}
+function status(s){$('status').textContent=s}
+function showDashboard(){ $('login').classList.add('hidden');$('dashboard').classList.remove('hidden');load() }
+async function check(){try{await api('/me');showDashboard()}catch{$('login').classList.remove('hidden')}}
+$('loginForm').onsubmit=async e=>{e.preventDefault();try{await fetchLogin()}catch(e){alert(e.message)}};
+async function fetchLogin(){
+ const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('password').value})});
+ const d=await r.json();if(!r.ok)throw Error(d.error||'Login failed');
+ $('password').value='';showDashboard();
+}
+$('logoutBtn').onclick=async()=>{await fetch('/api/admin/logout',{method:'POST'});$('dashboard').classList.add('hidden');$('login').classList.remove('hidden')};
+$('refreshBtn').onclick=load;
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function load(){
+ try{
+ const d=await api('/products');$('count').textContent='('+d.products.length+')';
+ $('products').innerHTML=d.products.map(p=>`<article class="item"><b>${esc(p.name)}</b><p>NPR ${Number(p.price).toLocaleString()} · ${esc(p.category)}</p><small>${p.active?'Visible':'Hidden'} · ${p.featured?'Featured':'Not featured'}</small><p>${esc(p.description)}</p><button data-edit="${p.id}">Edit</button><button class="danger" data-del="${p.id}">Delete</button></article>`).join('')||'<p>No products yet. Add your first product.</p>';
+ $('products').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(d.products.find(p=>p.id==b.dataset.edit)));
+ $('products').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removeProduct(b.dataset.del));
+ status('Catalog loaded successfully.');
+ }catch(e){status(e.message)}
+}
+function edit(p){
+ $('editor').classList.remove('hidden');
+ $('editorTitle').textContent=p?'Edit product':'Add product';
+ $('pid').value=p?.id||'';$('name').value=p?.name||'';$('price').value=p?.price??'';
+ $('category').value=p?.category||'subscriptions';$('description').value=p?.description||'';
+ $('image_url').value=p?.image_url||'';$('featured').checked=!!p?.featured;$('active').checked=p?p.active!==0:true;
+ $('editor').scrollIntoView({behavior:'smooth'});
+}
+$('newBtn').onclick=()=>edit(null);$('cancelBtn').onclick=()=>$('editor').classList.add('hidden');
+$('productForm').onsubmit=async e=>{
+ e.preventDefault();
+ const p={name:$('name').value,price:$('price').value,category:$('category').value,description:$('description').value,image_url:$('image_url').value,featured:$('featured').checked,active:$('active').checked};
+ try{const id=$('pid').value;await api(id?'/products/'+id:'/products',{method:id?'PUT':'POST',body:JSON.stringify(p)});$('editor').classList.add('hidden');status('Product saved.');await load()}catch(e){alert(e.message)}
+};
+async function removeProduct(id){if(!confirm('Permanently delete this product?'))return;try{await api('/products/'+id,{method:'DELETE'});await load()}catch(e){alert(e.message)}}
+check();
+</script>
+</body></html>
