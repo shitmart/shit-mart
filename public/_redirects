@@ -4,3 +4,9 @@
 /software / 200
 /accounts / 200
 /other / 200
+/subscriptions/* / 200
+/topups/* / 200
+/giftcards/* / 200
+/software/* / 200
+/accounts/* / 200
+/other/* / 200

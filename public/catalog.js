@@ -47,8 +47,19 @@
   }
 
   const path = location.pathname.replace(/\/+$/, "").toLowerCase();
+  const routeParts = path.split("/").filter(Boolean);
   const current = categories.find(c => path === "/" + c.id);
-  const home = !current;
+  const productRoute = !current && routeParts.length === 2 &&
+    categories.some(c => c.id === routeParts[0])
+    ? { categoryId: routeParts[0], slug: routeParts[1] } : null;
+  const home = !current && !productRoute;
+  const slugify = value => String(value ?? "").normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "product";
+  const productURL = product => "/" +
+    (categories.some(c => c.id === String(product.category || "other").toLowerCase())
+      ? String(product.category || "other").toLowerCase() : "other") +
+    "/" + slugify(product.name);
 
   root.hidden = home;
   if (categorySection) categorySection.hidden = !home;
@@ -60,12 +71,20 @@
     document.querySelectorAll("main section").forEach(el => {
       if (el !== root && el !== categorySection && !el.contains(root)) el.hidden = true;
     });
-    root.innerHTML = `
-      <a class="sm-back" href="/">← Back to all categories</a>
-      <h1 class="sm-page-title">${current.icon} ${current.name}</h1>
-      <p class="sm-page-subtitle">Explore available ${current.name.toLowerCase()}.</p>
-      <div class="sm-product-grid" id="sm-product-grid"></div>
-      <p class="sm-message" id="sm-product-message">Loading products…</p>`;
+    if (current) {
+      root.innerHTML = `
+        <a class="sm-back" href="/">← Back to all categories</a>
+        <h1 class="sm-page-title">${current.icon} ${current.name}</h1>
+        <p class="sm-page-subtitle">Explore available ${current.name.toLowerCase()}.</p>
+        <div class="sm-product-grid" id="sm-product-grid"></div>
+        <p class="sm-message" id="sm-product-message">Loading products…</p>`;
+    } else {
+      root.innerHTML = `
+        <a class="sm-back" href="/${escapeHTML(productRoute.categoryId)}">← Back to products</a>
+        <div id="sm-product-detail-content" class="sm-product-detail-content">
+          <p class="sm-message">Loading product details…</p>
+        </div>`;
+    }
   }
 
   // Route category cards and category navigation without changing the homepage layout.
@@ -92,6 +111,25 @@
       Array.isArray(data.products) ? data.products :
       Array.isArray(data.results) ? data.results : [];
 
+
+  style.textContent += `
+    .sm-product-detail-content{max-width:1000px;margin:24px auto 50px}
+    .sm-detail-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;align-items:start}
+    .sm-detail-image-wrap{background:#0a101a;border:1px solid #29364b;border-radius:18px;min-height:280px;display:grid;place-items:center;overflow:hidden}
+    .sm-detail-image{width:100%;max-height:430px;object-fit:contain}
+    .sm-detail-placeholder{font-size:90px;padding:60px 0}
+    .sm-detail-info h1{font-size:clamp(24px,4vw,34px);margin:4px 0 14px;overflow-wrap:anywhere}
+    .sm-detail-price{font-size:27px;font-weight:800;color:#78bdff;margin:16px 0}
+    .sm-detail-description{color:#c1cce0;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;margin:22px 0}
+    .sm-detail-label{display:block;font-size:13px;color:#aab6cc;margin:18px 0 8px}
+    .sm-detail-quantity{width:110px;padding:11px;border-radius:9px;border:1px solid #35445c;background:#0c111b;color:white;font:inherit}
+    .sm-detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+    .sm-detail-actions button{flex:1;min-width:130px;padding:13px 12px;border:0;border-radius:10px;font:inherit;font-weight:700}
+    .sm-detail-actions button:disabled{opacity:.48;cursor:not-allowed}
+    .sm-detail-buy{background:#478bff;color:white}.sm-detail-cart{background:#26364d;color:white}
+    @media(max-width:650px){.sm-product-detail-content{margin:18px 0 35px}.sm-detail-layout{grid-template-columns:1fr;gap:20px}.sm-detail-image-wrap{min-height:200px}.sm-detail-image{max-height:300px}.sm-detail-placeholder{font-size:65px;padding:35px 0}}
+  `;
+
     // Homepage: category cards only, enriched with product counts and price ranges.
     categories.forEach(category => {
       const items = products.filter(p =>
@@ -117,6 +155,44 @@
     });
 
     // Category pages: show ONLY the selected category's products.
+    if (productRoute) {
+      const product = products.find(p =>
+        String(p.category || "other").toLowerCase() === productRoute.categoryId &&
+        slugify(p.name) === productRoute.slug
+      );
+      const detail = document.getElementById("sm-product-detail-content");
+      if (!product) {
+        detail.innerHTML = `<h1 class="sm-page-title">Product not found</h1>
+          <p class="sm-message">This product may be unavailable or the link may be incorrect.</p>
+          <a class="sm-back" href="/${escapeHTML(productRoute.categoryId)}">← Back to products</a>`;
+        return;
+      }
+      document.title = product.name + " | SHIT MART";
+      const category = categories.find(c => c.id === productRoute.categoryId);
+      const image = product.image_url && /^https:\/\//i.test(product.image_url)
+        ? `<img class="sm-detail-image" src="${escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}">`
+        : `<div class="sm-detail-placeholder">${category?.icon || "✦"}</div>`;
+      detail.innerHTML = `
+        <div class="sm-detail-layout">
+          <div class="sm-detail-image-wrap">${image}</div>
+          <div class="sm-detail-info">
+            <span class="sm-available">Available</span>
+            <h1>${escapeHTML(product.name)}</h1>
+            <div class="sm-detail-price">${money(product.price)}</div>
+            <label class="sm-detail-label" for="sm-detail-quantity">Quantity</label>
+            <select class="sm-detail-quantity" id="sm-detail-quantity" aria-label="Select quantity">
+              ${Array.from({length:10},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join("")}
+            </select>
+            <div class="sm-detail-actions">
+              <button class="sm-detail-buy" type="button" disabled aria-disabled="true">Buy Now</button>
+              <button class="sm-detail-cart" type="button" disabled aria-disabled="true">Add to Cart</button>
+            </div>
+            <h2 style="font-size:18px;margin-top:28px">Description</h2>
+            <div class="sm-detail-description">${product.description ? escapeHTML(product.description) : "No description provided yet."}</div>
+          </div>
+        </div>`;
+      return;
+    }
     if (!current) return;
     const items = products.filter(p =>
       String(p.category || "other").toLowerCase() === current.id
@@ -141,76 +217,17 @@
       </article>
     `).join("");
     
-    // Make product cards open a product-details popup.
-    const detailsStyle = document.createElement("style");
-    detailsStyle.textContent = `
-      .sm-product-card[role="button"]{cursor:pointer;transition:transform .18s ease,border-color .18s ease}
-      .sm-product-card[role="button"]:hover{transform:translateY(-3px);border-color:#6585b8}
-      .sm-product-card[role="button"]:focus-visible{outline:2px solid #8ab4ff;outline-offset:3px}
-      .sm-product-details-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.78)}
-      .sm-product-details-box{position:relative;width:min(100%,430px);max-height:85vh;overflow:auto;background:#101a2a;color:#f3f7ff;border:1px solid #30425e;border-radius:18px;padding:22px;box-shadow:0 20px 70px #0009}
-      .sm-product-details-box img{display:block;width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-bottom:16px}
-      .sm-product-details-box h2{font-size:21px;margin:8px 0 12px;overflow-wrap:anywhere}
-      .sm-product-details-box p{font-size:14px;line-height:1.7;color:#c4d0e0;overflow-wrap:anywhere}
-      .sm-product-details-price{font-size:23px;font-weight:800;color:#8df0bd;margin:16px 0}
-      .sm-product-details-close{position:sticky;top:0;float:right;border:0;border-radius:10px;background:#26364d;color:white;padding:9px 13px;font-size:16px;cursor:pointer}
-      .sm-product-details-status{display:inline-block;padding:6px 10px;border-radius:20px;background:#153c30;color:#9af0c5;font-size:12px}
-    `;
-    document.head.appendChild(detailsStyle);
-
-    function closeProductDetails() {
-      document.getElementById("sm-product-details-modal")?.remove();
-      document.removeEventListener("keydown", closeProductDetailsOnEscape);
-    }
-    function closeProductDetailsOnEscape(event) {
-      if (event.key === "Escape") closeProductDetails();
-    }
-    function openProductDetails(product) {
-      closeProductDetails();
-      const modal = document.createElement("div");
-      modal.id = "sm-product-details-modal";
-      modal.className = "sm-product-details-modal";
-      modal.setAttribute("role", "dialog");
-      modal.setAttribute("aria-modal", "true");
-      modal.setAttribute("aria-label", "Product details");
-
-      const image = product.image_url && /^https:\/\//i.test(product.image_url)
-        ? `<img src="${escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}">`
-        : "";
-      const description = product.description
-        ? `<p>${escapeHTML(product.description).replace(/\n/g, "<br>")}</p>`
-        : `<p>No additional description provided.</p>`;
-
-      modal.innerHTML = `
-        <div class="sm-product-details-box">
-          <button type="button" class="sm-product-details-close" aria-label="Close product details">✕ Close</button>
-          ${image}
-          <h2>${escapeHTML(product.name)}</h2>
-          ${description}
-          <div class="sm-product-details-price">${money(product.price)}</div>
-          <span class="sm-product-details-status">Available</span>
-        </div>`;
-      modal.addEventListener("click", event => {
-        if (event.target === modal || event.target.closest(".sm-product-details-close")) {
-          closeProductDetails();
-        }
-      });
-      document.body.appendChild(modal);
-      document.addEventListener("keydown", closeProductDetailsOnEscape);
-      modal.querySelector(".sm-product-details-close").focus();
-    }
-
+    // Product cards navigate to their shareable detail URLs.
     function handleProductCard(event) {
       const card = event.target.closest(".sm-product-card[data-product-id]");
       if (!card || !grid.contains(card)) return;
       if (event.type === "keydown" && !["Enter", " "].includes(event.key)) return;
       if (event.type === "keydown") event.preventDefault();
       const product = items.find(item => String(item.id) === card.dataset.productId);
-      if (product) openProductDetails(product);
+      if (product) location.href = productURL(product);
     }
     grid.addEventListener("click", handleProductCard);
     grid.addEventListener("keydown", handleProductCard);
-
     message.textContent = `${items.length} product${items.length === 1 ? "" : "s"} available`;
   } catch (error) {
     console.error("SHIT MART catalog:", error);

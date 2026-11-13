@@ -79,7 +79,9 @@
       const category = String(p.category || "other").toLowerCase();
       const link = document.createElement("a");
       link.className = "home-product-result";
-      link.href = "/" + (categoryNames[category] ? category : "other");
+      const productCategory = ["subscriptions","topups","giftcards","software","accounts","other"].includes(String(p.category || "other").toLowerCase()) ? String(p.category || "other").toLowerCase() : "other";
+      const productSlug = String(p.name || "product").normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "product";
+      link.href = "/" + productCategory + "/" + productSlug;
 
       const name = document.createElement("strong");
       name.textContent = p.name || "Untitled product";
