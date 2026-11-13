@@ -1,135 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080b12">
-  <meta name="description" content="SHIT MART — Your digital world, one store.">
-  <title>SHIT MART | Digital Store</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #080b12;
-      color: #f5f7ff;
-      font-family: system-ui, Arial, sans-serif;
-    }
-    header {
-      padding: 18px 5%;
-      border-bottom: 1px solid #202638;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; }
-    .logo span { color: #29c7ff; }
-    nav { display: flex; gap: 18px; flex-wrap: wrap; }
-    a { color: #c7d0e4; text-decoration: none; }
-    a:hover { color: #29c7ff; }
-    .search {
-      width: 100%; max-width: 320px; padding: 12px 15px;
-      border: 1px solid #29364e; border-radius: 10px;
-      background: #111725; color: white; font-size: 15px;
-    }
-    main { max-width: 1150px; margin: auto; padding: 30px 20px; }
-    .hero {
-      padding: 55px 28px; border: 1px solid #183b59;
-      border-radius: 22px; text-align: center;
-      background: radial-gradient(ellipse at top, #123653, #0c1220 55%, #0a0d15);
-    }
-    .tag { color: #54d7ff; font-weight: 700; font-size: 13px; letter-spacing: 2px; }
-    h1 { font-size: clamp(34px, 7vw, 58px); margin: 15px 0; line-height: 1.1; }
-    h1 span { color: #29c7ff; }
-    .hero p { color: #aebbd0; line-height: 1.7; }
-    .button {
-      display: inline-block; margin-top: 15px; padding: 13px 22px;
-      border-radius: 10px; background: #168fd0; color: white; font-weight: 800;
-    }
-    section { margin-top: 38px; }
-    h2 { font-size: 23px; }
-    .muted { color: #9ba9c0; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 14px; }
-    .tile {
-      padding: 20px 14px; border: 1px solid #222e43;
-      border-radius: 14px; background: #101622;
-    }
-    .tile strong { display: block; margin-top: 9px; }
-    .tile p { color: #9ba9c0; font-size: 13px; }
-    .icon { font-size: 27px; }
-    .notice {
-      margin-top: 22px; padding: 15px; border-radius: 12px;
-      background: #101622; border: 1px solid #222e43; color: #aebbd0;
-    }
-    footer { border-top: 1px solid #202638; padding: 25px 5%; text-align: center; color: #8c9bb2; }
-    @media (max-width: 600px) {
-      header { align-items: flex-start; }
-      nav { order: 3; width: 100%; }
-      .search { max-width: 100%; }
-      .hero { padding: 40px 18px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b12">
+<meta name="description" content="SHIT MART — Your digital world, one marketplace.">
+<title>SHIT MART — Digital Marketplace</title>
+<style>
+:root{--bg:#080b12;--panel:#101622;--line:#202b3c;--blue:#1685ff;--cyan:#39e6ff;--muted:#9aa8bb;--white:#f4f8ff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--white);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit;text-decoration:none}.wrap{width:min(1160px,92%);margin:auto}
+.top{background:#0d1420;border-bottom:1px solid var(--line);text-align:center;padding:9px;font-size:12px;color:#b9dfff;letter-spacing:.4px}.top b{color:var(--cyan)}
+header{position:sticky;top:0;z-index:10;background:#080b12ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.head{display:flex;align-items:center;gap:20px;padding:17px 0}.logo{display:flex;align-items:center;gap:10px;white-space:nowrap;font-weight:950;letter-spacing:1px;font-size:20px}.mark{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:linear-gradient(135deg,#1685ff,#38e6ff);color:#04101d;font-size:20px;box-shadow:0 0 24px #1685ff38}.logo em{font-style:normal;color:var(--cyan)}.search{flex:1;position:relative}.search input{width:100%;background:#111824;border:1px solid #253248;border-radius:12px;color:white;padding:13px 15px 13px 42px;outline:none}.search input:focus{border-color:var(--blue)}.search span{position:absolute;left:14px;top:10px;color:var(--muted);font-size:20px}.actions{display:flex;gap:9px}.btn{border:1px solid var(--line);background:#121a28;color:var(--white);padding:11px 14px;border-radius:11px;cursor:pointer;font-weight:750}.btn:hover{border-color:var(--blue)}.primary{border:0;background:linear-gradient(100deg,#1479ff,#22c8ed);color:#03101c}.mobilecats{display:flex;gap:9px;overflow:auto;padding:0 0 14px;scrollbar-width:none}.mobilecats a{white-space:nowrap;padding:8px 12px;border:1px solid var(--line);border-radius:9px;font-size:12px;color:#c7d3e3}
+.hero{padding:48px 0 28px}.heroBox{position:relative;overflow:hidden;border:1px solid #1c4773;border-radius:25px;padding:clamp(27px,6vw,65px);background:radial-gradient(ellipse at 90% 10%,#087dff47,transparent 40%),radial-gradient(ellipse at 80% 100%,#13d9f526,transparent 35%),linear-gradient(120deg,#101a2a,#0a101b 65%)}.heroBox:after{content:"";position:absolute;width:260px;height:260px;border:1px solid #31caff26;border-radius:50%;right:-65px;top:35px;box-shadow:0 0 0 35px #31caff08,0 0 0 70px #31caff05;pointer-events:none}.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid #285582;background:#102640;color:#8eeaff;border-radius:99px;padding:8px 12px;font-size:11px;font-weight:850;letter-spacing:1px}.dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}h1{font-size:clamp(39px,7vw,76px);line-height:1.02;letter-spacing:-3px;margin:22px 0 17px;max-width:680px}h1 span{background:linear-gradient(90deg,#45a5ff,#46edff);background-clip:text;color:transparent}.hero p{color:#b1bfd1;line-height:1.8;max-width:490px;font-size:15px}.heroBtns{display:flex;flex-wrap:wrap;gap:11px;margin-top:27px}.heroBtns .btn{padding:14px 18px}.stats{display:flex;flex-wrap:wrap;gap:27px;margin-top:35px}.stat strong{display:block;font-size:15px}.stat small{color:var(--muted);font-size:11px}.section{padding:30px 0 40px}.sectionHead{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:21px}.kicker{font-size:10px;color:var(--cyan);font-weight:900;letter-spacing:2px;text-transform:uppercase}.section h2{font-size:clamp(24px,4vw,33px);margin:7px 0 0;letter-spacing:-.8px}.sectionHead p{color:var(--muted);font-size:12px;margin:0}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.category{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:175px;padding:21px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,#121b2a,#0c111b);color:white;cursor:pointer;transition:.2s}.category:hover{transform:translateY(-3px);border-color:#197edc;background:linear-gradient(145deg,#142741,#0c111b)}.catIcon{display:grid;place-items:center;width:47px;height:47px;border-radius:14px;background:#122c48;border:1px solid #1e4c75;font-size:24px;margin-bottom:20px}.category strong{font-size:16px}.category small{color:var(--muted);margin-top:7px;line-height:1.5}.arrow{margin-top:auto;padding-top:17px;color:var(--cyan);font-size:12px;font-weight:800}.feature{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.featureCard{border:1px solid var(--line);border-radius:18px;padding:26px;background:linear-gradient(140deg,#121d30,#0d121d)}.featureCard h3{font-size:22px;margin:14px 0 8px}.featureCard p{font-size:13px;line-height:1.8;color:var(--muted)}.featureIcon{font-size:29px}.miniTag{font-size:10px;color:#81e8ff;border:1px solid #214d71;padding:6px 9px;border-radius:7px;display:inline-block}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.step{border:1px solid var(--line);border-radius:15px;padding:19px;background:#0d131e}.step b{color:var(--cyan);font-size:12px}.step h3{font-size:15px;margin:12px 0 7px}.step p{color:var(--muted);font-size:12px;line-height:1.7;margin:0}.cta{padding:28px;border-radius:19px;border:1px solid #1c4773;background:radial-gradient(ellipse at right,#147dff24,transparent 65%),#0d1521;display:flex;align-items:center;justify-content:space-between;gap:20px}.cta h2{font-size:25px;margin:0 0 8px}.cta p{color:var(--muted);font-size:13px;margin:0}.empty{display:none;text-align:center;padding:35px;color:var(--muted);grid-column:1/-1}
+footer{border-top:1px solid var(--line);margin-top:25px;padding:28px 0 35px;color:var(--muted);font-size:12px}.foot{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.foot strong{color:white}.footlinks{display:flex;gap:17px;flex-wrap:wrap}.notice{position:fixed;bottom:20px;left:50%;transform:translate(-50%,130px);opacity:0;background:#172438;border:1px solid #2d608b;border-radius:12px;padding:13px 18px;z-index:30;transition:.25s;max-width:90%;font-size:13px;text-align:center}.notice.show{transform:translate(-50%,0);opacity:1}
+@media(max-width:720px){.head{gap:10px;flex-wrap:wrap;padding:12px 0}.logo{font-size:17px}.mark{width:35px;height:35px}.search{order:3;flex-basis:100%}.actions{margin-left:auto}.actions .btn{padding:9px 10px;font-size:12px}.hero{padding-top:25px}.heroBox{border-radius:19px}.heroBox:after{opacity:.4;right:-160px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.category{padding:15px;min-height:165px}.catIcon{width:42px;height:42px}.feature{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.section{padding:25px 0}.sectionHead p{display:none}.cta{align-items:flex-start;flex-direction:column}.foot{align-items:flex-start;flex-direction:column}h1{letter-spacing:-2px}}
+@media(max-width:360px){.grid{grid-template-columns:1fr}.category{min-height:140px}}
+</style>
 </head>
 <body>
-  <header>
-    <a class="logo" href="#">SHIT <span>MART</span></a>
-    <nav>
-      <a href="#categories">Categories</a>
-      <a href="#products">Products</a>
-      <a href="#account">Account</a>
-      <a href="#cart">Cart 🛒</a>
-    </nav>
-    <input class="search" id="search" type="search" placeholder="Search digital products..." aria-label="Search products">
-  </header>
-
-  <main>
-    <div class="hero">
-      <div class="tag">YOUR DIGITAL WORLD</div>
-      <h1>Everything Digital.<br><span>One Store.</span></h1>
-      <p>Subscriptions, game top-ups, gift cards and more — all in one place.</p>
-      <a class="button" href="#categories">Explore the store →</a>
-    </div>
-
-    <section id="categories">
-      <h2>Explore Categories</h2>
-      <p class="muted">Find what you're looking for.</p>
-      <div class="grid">
-        <div class="tile"><div class="icon">📺</div><strong>Subscriptions</strong><p>Digital entertainment</p></div>
-        <div class="tile"><div class="icon">🎮</div><strong>Game Top-ups</strong><p>Power up your games</p></div>
-        <div class="tile"><div class="icon">🎁</div><strong>Gift Cards</strong><p>Digital gift cards</p></div>
-        <div class="tile"><div class="icon">💻</div><strong>Software</strong><p>Digital tools</p></div>
-        <div class="tile"><div class="icon">👤</div><strong>Accounts</strong><p>Digital accounts</p></div>
-        <div class="tile"><div class="icon">✨</div><strong>Other Products</strong><p>Explore more</p></div>
-      </div>
-    </section>
-
-    <section id="products">
-      <h2>Featured Products</h2>
-      <p class="muted">Our product listings will appear here.</p>
-      <div class="notice">🚀 SHIT MART is under construction. Product listings and ordering will be added in the next stages.</div>
-    </section>
-
-    <section id="account">
-      <h2>Your Account</h2>
-      <p class="muted">Customer registration and Google login will be added after the secure backend is configured.</p>
-    </section>
-
-    <section id="cart">
-      <h2>Your Cart 🛒</h2>
-      <p class="muted">The shopping cart and checkout are coming in a later stage.</p>
-    </section>
-  </main>
-
-  <footer>© <span id="year"></span> SHIT MART · Digital Store</footer>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    document.getElementById('search').addEventListener('input', function () {
-      const query = this.value.toLowerCase();
-      document.querySelectorAll('#categories .tile').forEach(tile => {
-        tile.hidden = !tile.textContent.toLowerCase().includes(query);
-      });
-    });
-  </script>
+<div class="top">WELCOME TO <b>SHIT MART</b> · YOUR DIGITAL WORLD, ONE MARKETPLACE</div>
+<header>
+ <div class="wrap">
+  <div class="head">
+   <a class="logo" href="#" aria-label="SHIT MART home"><span class="mark">S</span><span>SHIT <em>MART</em></span></a>
+   <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Search categories..." aria-label="Search categories"></label>
+   <div class="actions"><button class="btn" id="account">♙ Account</button><button class="btn primary" id="cart">🛒 Cart <span id="cartCount">0</span></button></div>
+  </div>
+  <nav class="mobilecats" aria-label="Categories">
+   <a href="#categories">All categories</a><a href="#categories" data-filter="Subscriptions">Subscriptions</a><a href="#categories" data-filter="Game Top-ups">Game top-ups</a><a href="#categories" data-filter="Gift Cards">Gift cards</a><a href="#categories" data-filter="Software">Software</a><a href="#categories" data-filter="Gaming Accounts">Accounts</a><a href="#categories" data-filter="Other Products">Other products</a>
+  </nav>
+ </div>
+</header>
+<main class="wrap">
+ <section class="hero">
+  <div class="heroBox">
+   <div class="eyebrow"><span class="dot"></span> THE DIGITAL MARKETPLACE</div>
+   <h1>Your digital world.<br><span>One marketplace.</span></h1>
+   <p>Explore digital subscriptions, game top-ups, gift cards, software and more — all in one place. Your next digital upgrade starts here.</p>
+   <div class="heroBtns"><a class="btn primary" href="#categories">Explore categories&nbsp; ↗</a><a class="btn" href="#how">How it works&nbsp; ↓</a></div>
+   <div class="stats"><div class="stat"><strong>✦ Digital-first</strong><small>Products for your world</small></div><div class="stat"><strong>⌁ Easy discovery</strong><small>Browse by category</small></div><div class="stat"><strong>◈ SHIT MART</strong><small>Built for digital life</small></div></div>
+  </div>
+ </section>
+ <section class="section" id="categories">
+  <div class="sectionHead"><div><div class="kicker">Find your next upgrade</div><h2>Explore categories</h2></div><p>Search or tap a category to get started.</p></div>
+  <div class="grid" id="categoryGrid">
+   <button class="category" data-name="Subscriptions"><span class="catIcon">📺</span><strong>Subscriptions</strong><small>Streaming, entertainment and memberships.</small><span class="arrow">Explore category ↗</span></button>
+   <button class="category" data-name="Game Top-ups"><span class="catIcon">🎮</span><strong>Game Top-ups</strong><small>Discover digital gaming top-ups.</small><span class="arrow">Explore category ↗</span></button>
+   <button class="category" data-name="Gift Cards"><span class="catIcon">🎁</span><strong>Gift Cards</strong><small>Digital credit and gift-card options.</small><span class="arrow">Explore category ↗</span></button>
+   <button class="category" data-name="Software"><span class="catIcon">💻</span><strong>Software</strong><small>Useful apps and digital tools.</small><span class="arrow">Explore category ↗</span></button>
+   <button class="category" data-name="Gaming Accounts"><span class="catIcon">👾</span><strong>Gaming Accounts</strong><small>Gaming account listings and offers.</small><span class="arrow">Explore category ↗</span></button>
+   <button class="category" data-name="Other Products"><span class="catIcon">✦</span><strong>Other Products</strong><small>More digital products, all in one place.</small><span class="arrow">Explore category ↗</span></button>
+   <div class="empty" id="empty">No matching categories. Try another search.</div>
+  </div>
+ </section>
+ <section class="section">
+  <div class="sectionHead"><div><div class="kicker">Made for digital life</div><h2>A better way to browse</h2></div></div>
+  <div class="feature">
+   <div class="featureCard"><span class="featureIcon">⚡</span><h3>Your digital essentials, together.</h3><p>Find your way through subscriptions, gaming, gift cards and software from one simple storefront. Product listings and checkout are being developed next.</p><span class="miniTag">STORE EXPERIENCE</span></div>
+   <div class="featureCard"><span class="featureIcon">💬</span><h3>Need help with an order?</h3><p>Have a question before buying? Contact the SHIT MART team through our official support channel.</p><button class="btn primary" id="support">Contact support ↗</button></div>
+  </div>
+ </section>
+ <section class="section" id="how">
+  <div class="sectionHead"><div><div class="kicker">Simple by design</div><h2>Your journey starts here</h2></div></div>
+  <div class="steps">
+   <div class="step"><b>STEP 01</b><h3>Explore</h3><p>Browse the categories and find the type of digital product you need.</p></div>
+   <div class="step"><b>STEP 02</b><h3>Choose</h3><p>Compare available listings and check the product details before ordering.</p></div>
+   <div class="step"><b>STEP 03</b><h3>Get support</h3><p>Order and delivery features are still being built. Check back for updates.</p></div>
+  </div>
+ </section>
+ <section class="section">
+  <div class="cta"><div><h2>Ready to explore?</h2><p>Your next digital find could be one click away.</p></div><a class="btn primary" href="#categories">Browse categories ↗</a></div>
+ </section>
+</main>
+<footer><div class="wrap foot"><div><strong>SHIT MART</strong><p>© <span id="year"></span> SHIT MART. Digital goods, made discoverable.</p></div><div class="footlinks"><a href="#categories">Categories</a><a href="#how">How it works</a><a href="#" id="footerSupport">Support</a></div></div></footer>
+<div class="notice" id="notice" role="status" aria-live="polite"></div>
+<script>
+const notice=document.getElementById('notice');let noticeTimer;
+function tell(message){notice.textContent=message;notice.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('show'),2600)}
+document.getElementById('year').textContent=new Date().getFullYear();
+const search=document.getElementById('search'),cards=[...document.querySelectorAll('.category')],empty=document.getElementById('empty');
+function filterCategories(term){let shown=0;cards.forEach(card=>{const match=card.dataset.name.toLowerCase().includes(term.toLowerCase())||card.textContent.toLowerCase().includes(term.toLowerCase());card.style.display=match?'flex':'none';if(match)shown++});empty.style.display=shown?'none':'block'}
+search.addEventListener('input',()=>filterCategories(search.value));
+document.querySelectorAll('[data-filter]').forEach(link=>link.addEventListener('click',()=>{search.value=link.dataset.filter;filterCategories(search.value)}));
+cards.forEach(card=>card.addEventListener('click',()=>tell(card.dataset.name+' listings are coming soon.')));
+document.getElementById('account').addEventListener('click',()=>tell('Customer accounts are coming soon.'));
+document.getElementById('cart').addEventListener('click',()=>tell('Cart and checkout are being built next.'));
+function support(){tell('Add your official SHIT MART support link when it is ready.')}
+document.getElementById('support').addEventListener('click',support);
+document.getElementById('footerSupport').addEventListener('click',e=>{e.preventDefault();support()});
+</script>
 </body>
 </html>
