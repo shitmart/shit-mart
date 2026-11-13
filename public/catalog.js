@@ -24,17 +24,17 @@
     .sm-product-card:hover{transform:translateY(-3px);border-color:#428bff}
     .sm-product-image{width:100%;height:190px;object-fit:contain;border-radius:11px;background:#0a101a}
     .sm-product-placeholder{height:190px;display:grid;place-items:center;border-radius:11px;background:#0a101a;font-size:48px}
-    .sm-product-card h3{font-size:16px;margin:13px 0 8px}
-    .sm-product-description{font-size:13px;line-height:1.6;color:#aab6cc;white-space:pre-wrap;overflow-wrap:anywhere}
-    .sm-product-price{font-size:20px;font-weight:800;margin-top:13px;color:#78bdff}
-    .sm-page-title{font-size:clamp(27px,5vw,40px);margin:8px 0}
+    .sm-product-card h3{font-size:14px;margin:11px 0 7px}
+    .sm-product-description{font-size:12px;line-height:1.5;color:#aab6cc;white-space:pre-wrap;overflow-wrap:anywhere}
+    .sm-product-price{font-size:17px;font-weight:800;margin-top:11px;color:#78bdff}
+    .sm-page-title{font-size:clamp(23px,4vw,32px);margin:8px 0}
     .sm-page-subtitle{color:#aab6cc;margin:0 0 24px}
     .sm-back{display:inline-block;margin:0 0 18px;color:#78bdff;text-decoration:none}
     .sm-message{color:#aab6cc;padding:24px 0}
     .sm-category-meta{display:block;font-size:12px;color:#aab6cc;margin-top:7px}
     .sm-available{display:inline-block;font-size:11px;color:#80e6b1;background:#153628;padding:5px 9px;border-radius:20px;margin-top:10px}
     #sm-store-products[hidden]{display:none!important}
-    @media(max-width:480px){#sm-store-products{padding:0 14px}.sm-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sm-product-card{padding:9px}.sm-product-image,.sm-product-placeholder{height:135px}.sm-product-card h3{font-size:14px}.sm-product-price{font-size:16px}}
+    @media(max-width:480px){#sm-store-products{padding:0 14px}.sm-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sm-product-card{padding:9px}.sm-product-image,.sm-product-placeholder{height:135px}.sm-product-card h3{font-size:14px}.sm-product-price{font-size:15px}}
   `;
   document.head.appendChild(style);
 
