@@ -55,7 +55,10 @@
 
   if (!home) {
     document.querySelectorAll("main > *").forEach(el => {
-      if (el !== root) el.hidden = true;
+      if (el !== root && !el.contains(root)) el.hidden = true;
+    });
+    document.querySelectorAll("main section").forEach(el => {
+      if (el !== root && el !== categorySection && !el.contains(root)) el.hidden = true;
     });
     root.innerHTML = `
       <a class="sm-back" href="/">← Back to all categories</a>
