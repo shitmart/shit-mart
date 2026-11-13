@@ -112,7 +112,9 @@
       Array.isArray(data.results) ? data.results : [];
 
 
-  style.textContent += `
+  style.textContent +=
+'\n.sm-quantity-stepper{display:inline-flex;align-items:center;border:1px solid var(--border,#333);border-radius:10px;overflow:hidden;width:max-content;max-width:100%;background:var(--card,#171717)}\n.sm-quantity-stepper button{width:44px;height:44px;border:0;background:transparent;color:inherit;font-size:24px;cursor:pointer}\n.sm-quantity-stepper button:disabled{opacity:.35;cursor:not-allowed}\n.sm-quantity-stepper input{width:48px;height:44px;padding:0;text-align:center;border:0;border-left:1px solid var(--border,#333);border-right:1px solid var(--border,#333);border-radius:0;background:transparent;color:inherit;font-size:16px;appearance:textfield;-moz-appearance:textfield}\n.sm-quantity-stepper input::-webkit-inner-spin-button,.sm-quantity-stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}\n';
+ `
     .sm-product-detail-content{max-width:1000px;margin:24px auto 50px}
     .sm-detail-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;align-items:start}
     .sm-detail-image-wrap{background:#0a101a;border:1px solid #29364b;border-radius:18px;min-height:280px;display:grid;place-items:center;overflow:hidden}
@@ -180,9 +182,11 @@
             <h1>${escapeHTML(product.name)}</h1>
             <div class="sm-detail-price">${money(product.price)}</div>
             <label class="sm-detail-label" for="sm-detail-quantity">Quantity</label>
-            <select class="sm-detail-quantity" id="sm-detail-quantity" aria-label="Select quantity">
-              ${Array.from({length:10},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join("")}
-            </select>
+            <div class="sm-quantity-stepper">
+  <button type="button" data-quantity-step="-1" aria-label="Decrease quantity">−</button>
+  <input id="sm-detail-quantity" type="number" min="1" max="10" step="1" value="1" inputmode="numeric" aria-label="Quantity">
+  <button type="button" data-quantity-step="1" aria-label="Increase quantity">+</button>
+</div>
             <div class="sm-detail-actions">
               <button class="sm-detail-buy" type="button" disabled aria-disabled="true">Buy Now</button>
               <button class="sm-detail-cart" type="button" disabled aria-disabled="true">Add to Cart</button>
@@ -235,3 +239,20 @@
     if (message) message.textContent = "Couldn't load products. Please refresh and try again.";
   }
 })();
+
+
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-quantity-step]');
+  if (!btn) return;
+  const wrap = btn.closest('.sm-quantity-stepper');
+  const input = wrap && wrap.querySelector('input');
+  if (!input) return;
+  const min = Number(input.min) || 1, max = Number(input.max) || 10;
+  input.value = Math.max(min, Math.min(max, (Number(input.value) || min) + Number(btn.dataset.quantityStep)));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+});
+document.addEventListener('change', function(e) {
+  const input = e.target;
+  if (!input.matches('.sm-quantity-stepper input')) return;
+  input.value = Math.max(1, Math.min(10, Math.floor(Number(input.value) || 1)));
+});
